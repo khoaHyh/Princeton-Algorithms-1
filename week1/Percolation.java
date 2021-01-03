@@ -8,29 +8,22 @@ public class Percolation {
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
         if (n <= 0)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Error: n <= 0");
 
         gridSize = n;
         connectedGrid = new WeightedQuickUnionUF(n * n + 2);
         openSites = new boolean[n * n];
+        totalOpenSites = 0;
 
         // Initialize whole grid to be blocked, if other libraries were allowed,
         // Array.fill() would be a clean way to write this.
-        for (int i = 0; i < openSites.length; i ++) {
+        for (int i = 0; i < openSites.length; i++) {
             openSites[i] = false;
         }
 
         // Initialize virtual top and bottom sites
-        virtualTop = (n * n);
+        virtualTop = n * n;
         virtualBot = (n * n) + 1;
-
-        // Connect all top sites of N by N grid to virtual top site
-        for (int i = 0; i < n; i++)
-            connectedGrid.union(virtualTop, i);
-
-        // Connect all bottom sites of N b N grid to virtual bottom site
-        for (int i = openSites.length - 1; i >= openSites.length - n; i--)
-            connectedGrid.union(virtualBot, i);
     }
 
     // Map 2D pair to a 1D union-find object index
@@ -41,7 +34,7 @@ public class Percolation {
     // Throw an exception for invalid indices
     private static void validateIndices(int row, int col) {
         if (row < 1 || row > gridSize || col < 1 || col > gridSize) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid indices.");
         }
     }
 
@@ -55,15 +48,22 @@ public class Percolation {
             totalOpenSites++;
             openSites[index1D] = true;
 
+            // Connect to virtual top site if the site in question is on the top row
+            if (row == 1)
+                connectedGrid.union(index1D, virtualTop);
+            // Connect to virtual top site if the site in question is on the bottom row
+            if (row == gridSize)
+                connectedGrid.union(index1D, virtualBot);
+
             // Link the site in question to its open neighbors
-            if (row + 1 <= gridSize)
-                connectedGrid.union(index1D, index1D + gridSize);
-            if (row - 1 > 0)
-                connectedGrid.union(index1D, index1D - gridSize);
-            if (col + 1 <= gridSize)
-                connectedGrid.union(index1D, index1D + 1);
-            if (col - 1 > 0)
-                connectedGrid.union(index1D, index1D - 1);
+            if (row < gridSize && isOpen(row + 1, col))
+                connectedGrid.union(index1D, xyTo1D(row + 1, col));
+            if (row > 1 && isOpen(row - 1, col))
+                connectedGrid.union(index1D, xyTo1D(row - 1, col));
+            if (col < gridSize && isOpen(row, col + 1))
+                connectedGrid.union(index1D, xyTo1D(row, col + 1));
+            if (col > 1 && isOpen(row, col - 1))
+                connectedGrid.union(index1D, xyTo1D(row, col - 1));
         }
     }
 
@@ -76,7 +76,7 @@ public class Percolation {
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         validateIndices(row, col);
-        return connectedGrid.find(xyTo1D(row, col)) == virtualTop;
+        return connectedGrid.find(xyTo1D(row, col)) == connectedGrid.find(virtualTop);
     }
 
     // returns the number of open sites
@@ -86,6 +86,6 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return connectedGrid.find(virtualBot) == virtualTop;
+        return connectedGrid.find(virtualBot) == connectedGrid.find(virtualTop);
     }
 }
