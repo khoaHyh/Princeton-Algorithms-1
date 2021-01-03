@@ -3,7 +3,8 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 public class Percolation {
     private WeightedQuickUnionUF connectedGrid;
     private boolean[] openSites;
-    private int gridSize, virtualTop, virtualBot, totalOpenSites;
+    private boolean systemPercolates = false;
+    private int gridSize, virtualTop, totalOpenSites;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -21,9 +22,8 @@ public class Percolation {
             openSites[i] = false;
         }
 
-        // Initialize virtual top and bottom sites
+        // Initialize virtual top
         virtualTop = n * n;
-        virtualBot = (n * n) + 1;
     }
 
     // Map 2D pair to a 1D union-find object index
@@ -51,9 +51,6 @@ public class Percolation {
             // Connect to virtual top site if the site in question is on the top row
             if (row == 1)
                 connectedGrid.union(index1D, virtualTop);
-            // Connect to virtual top site if the site in question is on the bottom row
-            if (row == gridSize)
-                connectedGrid.union(index1D, virtualBot);
 
             // Link the site in question to its open neighbors
             if (row < gridSize && isOpen(row + 1, col))
@@ -64,6 +61,11 @@ public class Percolation {
                 connectedGrid.union(index1D, xyTo1D(row, col + 1));
             if (col > 1 && isOpen(row, col - 1))
                 connectedGrid.union(index1D, xyTo1D(row, col - 1));
+
+            // Another way to check for percolation while accounting for backwash
+            if (!systemPercolates && row == gridSize && isFull(row,col)) {
+                systemPercolates = true;
+            }
         }
     }
 
@@ -86,6 +88,6 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return connectedGrid.find(virtualBot) == connectedGrid.find(virtualTop);
+        return systemPercolates;
     }
 }
