@@ -52,8 +52,8 @@ public class Percolation {
             if (row == 1)
                 connectedGrid.union(index1D, virtualTop);
             // Connect to virtual bottom site if the site in question is on the bottom row
-            if (row == 1 && !percolates())
-                connectedGrid.union(index1D, virtualTop);
+            if (row == gridSize && !percolates())
+                connectedGrid.union(index1D, virtualBot);
 
             // Link the site in question to its open neighbors
             if (row < gridSize && isOpen(row + 1, col))
