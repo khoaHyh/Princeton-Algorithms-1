@@ -72,8 +72,8 @@ public class PercolationStats {
 
         PercolationStats psObj = new PercolationStats(n, T);
 
-        System.out.printf("%-15s %48s\n", "mean",psObj.mean());
-        System.out.printf("%-15s %48s\n", "stddev",psObj.stddev());
-        System.out.printf("%-15s %s[%s, %s]\n", "95% confidence interval", " ", psObj.confidenceLo(), psObj.confidenceHi());
+        System.out.printf("%s = %f\n", "mean", psObj.mean());
+        System.out.printf("%s = %f\n", "stddev()", psObj.stddev());
+        System.out.printf("%s = [%f, %f]\n", "95% confidence interval", psObj.confidenceLo(), psObj.confidenceHi());
     }
 }

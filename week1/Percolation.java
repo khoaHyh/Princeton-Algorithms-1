@@ -1,9 +1,9 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-    private static WeightedQuickUnionUF connectedGrid;
-    private static boolean[] openSites;
-    private static int gridSize, virtualTop, virtualBot, totalOpenSites;
+    private WeightedQuickUnionUF connectedGrid;
+    private boolean[] openSites;
+    private int gridSize, virtualTop, virtualBot, totalOpenSites;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -27,12 +27,12 @@ public class Percolation {
     }
 
     // Map 2D pair to a 1D union-find object index
-    private static int xyTo1D(int row, int col) {
+    private int xyTo1D(int row, int col) {
         return ((row - 1) * gridSize) + (col - 1);
     }
 
     // Throw an exception for invalid indices
-    private static void validateIndices(int row, int col) {
+    private void validateIndices(int row, int col) {
         if (row < 1 || row > gridSize || col < 1 || col > gridSize) {
             throw new IllegalArgumentException("Invalid indices.");
         }
