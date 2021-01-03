@@ -62,18 +62,18 @@ public class PercolationStats {
     // test client (see below)
     public static void main(String[] args) {
         int n;
-        int T;
+        int t;
         if (args.length != 2) {
             throw new NullPointerException("2 command-line arguments are required.");
         } else {
             n = Integer.parseInt(args[0]);
-            T = Integer.parseInt(args[1]);
+            t = Integer.parseInt(args[1]);
         }
 
-        PercolationStats psObj = new PercolationStats(n, T);
+        PercolationStats psObj = new PercolationStats(n, t);
 
-        System.out.printf("%s = %f\n", "mean", psObj.mean());
-        System.out.printf("%s = %f\n", "stddev()", psObj.stddev());
-        System.out.printf("%s = [%f, %f]\n", "95% confidence interval", psObj.confidenceLo(), psObj.confidenceHi());
+        System.out.printf("%-15s = %f\n", "mean", psObj.mean());
+        System.out.printf("%-15s = %f\n", "stddev()", psObj.stddev());
+        System.out.printf("%-15s = [%f, %f]\n", "95% confidence interval", psObj.confidenceLo(), psObj.confidenceHi());
     }
 }
