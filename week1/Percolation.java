@@ -4,9 +4,6 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 // Uses bit manipulation and a byte array to handle state of each site.
 
 public class Percolation {
-    private WeightedQuickUnionUF connGrid;
-    private byte[] percState;
-    private int gridSize, totalOpenSites;
     // Binary Representation: 00000001
     private byte OPEN = Byte.parseByte("1");
     // Binary Representation: 00000010
@@ -15,6 +12,9 @@ public class Percolation {
     private byte CONNTOBOT = Byte.parseByte("4");
     // Binary Representation: 00000111
     private byte PERCOLATES = Byte.parseByte("7");
+    private WeightedQuickUnionUF connGrid;
+    private byte[] percState;
+    private int gridSize, totalOpenSites;
     private boolean systemPercolates = false;
 
     // creates n-by-n grid, with all sites initially blocked
@@ -23,7 +23,7 @@ public class Percolation {
             throw new IllegalArgumentException("Error: n <= 0");
 
         gridSize = n;
-        connGrid = new WeightedQuickUnionUF(n * n );
+        connGrid = new WeightedQuickUnionUF(n * n);
         totalOpenSites = 0;
         // Initial value of Byte array is 0
         percState = new byte[n * n];
@@ -41,6 +41,16 @@ public class Percolation {
         }
     }
 
+    // Method to handle newly opened site union to neighbouring sites
+    private void handleUnion(int index, int adjacentSite) {
+        // It is imperative to handle the state of the site being opened before union
+        // with the adjacent site because the root site will change after the union.
+        if ((percState[adjacentSite] & OPEN) == OPEN) {
+            percState[index] = (byte) (percState[index] | percState[connGrid.find(adjacentSite)]);
+            connGrid.union(index, adjacentSite);
+        }
+    }
+
     // opens the site (row, col) if it is not open already
     public void open(int row, int col) {
         validateIndices(row, col);
@@ -49,13 +59,13 @@ public class Percolation {
         // Mark the site as open if isn't already
         if ((percState[index1D] & OPEN) == 0) {
             totalOpenSites++;
-            percState[index1D] = (byte)(percState[index1D] | OPEN);
+            percState[index1D] = (byte) (percState[index1D] | OPEN);
 
             // Set bits for sites in the top and bottom row respectively
             if (row == 1)
-                percState[index1D] = (byte)(percState[index1D] | FULL);
+                percState[index1D] = (byte) (percState[index1D] | FULL);
             if (row == gridSize)
-                percState[index1D] = (byte)(percState[index1D] | CONNTOBOT);
+                percState[index1D] = (byte) (percState[index1D] | CONNTOBOT);
 
             // Indices for adjacent sites
             int bottomAdj = xyTo1D(row + 1, col);
@@ -65,29 +75,15 @@ public class Percolation {
 
             // Link the site in question to its open neighbors and update new root with the
             // Bitwise OR of the previous roots
-            // It is imperative to handle the state of the site being opened before union
-            // with the adjacent site because the root site will change after the union.
-            if (row < gridSize && (percState[bottomAdj] & OPEN) == OPEN) {
-                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(bottomAdj)]);
-                connGrid.union(index1D, bottomAdj);
-            }
-            if (row > 1 && (percState[topAdj] & OPEN) == OPEN) {
-                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(topAdj)]);
-                connGrid.union(index1D, topAdj);
-            }
-            if (col < gridSize && (percState[rightAdj] & OPEN) == OPEN) {
-                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(rightAdj)]);
-                connGrid.union(index1D, rightAdj);
-            }
-            if (col > 1 && (percState[leftAdj] & OPEN) == OPEN) {
-                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(leftAdj)]);
-                connGrid.union(index1D, leftAdj);
-            }
+            if (row < gridSize) handleUnion(index1D, bottomAdj);
+            if (row > 1) handleUnion(index1D, topAdj);
+            if (col < gridSize) handleUnion(index1D, rightAdj);
+            if (col > 1) handleUnion(index1D, leftAdj);
 
             // Update state of site in question with state of root index
             int rootIndex = connGrid.find(index1D);
-            percState[rootIndex] = (byte)(percState[rootIndex] | percState[index1D]);
-            if ((byte)(percState[rootIndex] & PERCOLATES) == PERCOLATES) {
+            percState[rootIndex] = (byte) (percState[rootIndex] | percState[index1D]);
+            if ((byte) (percState[rootIndex] & PERCOLATES) == PERCOLATES) {
                 systemPercolates = true;
             }
         }
