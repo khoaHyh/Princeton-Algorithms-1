@@ -5,16 +5,17 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
     // Binary Representation: 00000001
-    private byte OPEN = Byte.parseByte("1");
+    private final byte OPEN = Byte.parseByte("1");
     // Binary Representation: 00000010
-    private byte FULL = Byte.parseByte("2");
+    private final byte FULL = Byte.parseByte("2");
     // Binary Representation: 00000100
-    private byte CONNTOBOT = Byte.parseByte("4");
+    private final byte CONNTOBOT = Byte.parseByte("4");
     // Binary Representation: 00000111
-    private byte PERCOLATES = Byte.parseByte("7");
-    private WeightedQuickUnionUF connGrid;
-    private byte[] percState;
-    private int gridSize, totalOpenSites;
+    private final byte PERCOLATES = Byte.parseByte("7");
+    private final WeightedQuickUnionUF connGrid;
+    private final byte[] percState;
+    private final int gridSize;
+    private int totalOpenSites;
     private boolean systemPercolates = false;
 
     // creates n-by-n grid, with all sites initially blocked
