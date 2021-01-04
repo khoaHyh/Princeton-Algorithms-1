@@ -49,14 +49,19 @@ public class PercolationStats {
         }
     }
 
+    // Calculation for confidence interval of 95% without mean
+    private double confidence95() {
+        return 1.96 * stddev() / Math.sqrt(totalComputations);
+    }
+
     // low endpoint of 95% confidence interval
     public double confidenceLo() {
-        return mean() - (1.96 * stddev() / Math.sqrt(totalComputations));
+        return mean() - confidence95();
     }
 
     // high endpoint of 95% confidence interval
     public double confidenceHi() {
-        return mean() + (1.96 * stddev() / Math.sqrt(totalComputations));
+        return mean() + confidence95();
     }
 
     // test client (see below)
@@ -72,8 +77,8 @@ public class PercolationStats {
 
         PercolationStats psObj = new PercolationStats(n, t);
 
-        System.out.printf("%-15s = %f\n", "mean", psObj.mean());
-        System.out.printf("%-15s = %f\n", "stddev", psObj.stddev());
+        System.out.printf("%-23s = %f\n", "mean", psObj.mean());
+        System.out.printf("%-23s = %f\n", "stddev", psObj.stddev());
         System.out.printf("%s = [%f, %f]\n", "95% confidence interval", psObj.confidenceLo(), psObj.confidenceHi());
     }
 }

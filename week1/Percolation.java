@@ -1,9 +1,21 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
+// Percolation assignment without virtual sites and 1 WQUUF instance.
+// Uses bit manipulation and a byte array to handle state of each site.
+
 public class Percolation {
-    private WeightedQuickUnionUF connectedGrid;
-    private boolean[] openSites;
-    private int gridSize, virtualTop, virtualBot, totalOpenSites;
+    private WeightedQuickUnionUF connGrid;
+    private byte[] percState;
+    private int gridSize, totalOpenSites;
+    // Binary Representation: 00000001
+    private byte OPEN = Byte.valueOf("1");
+    // Binary Representation: 00000010
+    private byte FULL = Byte.valueOf("2");
+    // Binary Representation: 00000100
+    private byte CONNTOBOT = Byte.valueOf("4");
+    // Binary Representation: 00000111
+    private byte PERCOLATES = Byte.valueOf("7");
+    private boolean systemPercolates = false;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -11,24 +23,15 @@ public class Percolation {
             throw new IllegalArgumentException("Error: n <= 0");
 
         gridSize = n;
-        connectedGrid = new WeightedQuickUnionUF(n * n + 2);
-        openSites = new boolean[n * n];
+        connGrid = new WeightedQuickUnionUF(n * n );
         totalOpenSites = 0;
-
-        // Initialize whole grid to be blocked, if other libraries were allowed,
-        // Array.fill() would be a clean way to write this.
-        for (int i = 0; i < openSites.length; i++) {
-            openSites[i] = false;
-        }
-
-        // Initialize virtual top and bottom
-        virtualTop = n * n;
-        virtualBot = (n * n) + 1;
+        // Initial value of Byte array is 0
+        percState = new byte[n * n];
     }
 
     // Map 2D pair to a 1D union-find object index
     private int xyTo1D(int row, int col) {
-        return ((row - 1) * gridSize) + (col - 1);
+        return (row - 1) * gridSize + col - 1;
     }
 
     // Throw an exception for invalid indices
@@ -44,39 +47,63 @@ public class Percolation {
         int index1D = xyTo1D(row, col);
 
         // Mark the site as open if isn't already
-        if (!openSites[index1D]) {
+        if ((percState[index1D] & OPEN) == 0) {
             totalOpenSites++;
-            openSites[index1D] = true;
+            percState[index1D] = (byte)(percState[index1D] | OPEN);
 
-            // Connect to virtual top site if the site in question is on the top row
+            // Set bits for sites in the top and bottom row respectively
             if (row == 1)
-                connectedGrid.union(index1D, virtualTop);
-            // Connect to virtual bottom site if the site in question is on the bottom row
-            if (row == gridSize && !percolates())
-                connectedGrid.union(index1D, virtualBot);
+                percState[index1D] = (byte)(percState[index1D] | FULL);
+            if (row == gridSize)
+                percState[index1D] = (byte)(percState[index1D] | CONNTOBOT);
 
-            // Link the site in question to its open neighbors
-            if (row < gridSize && isOpen(row + 1, col))
-                connectedGrid.union(index1D, xyTo1D(row + 1, col));
-            if (row > 1 && isOpen(row - 1, col))
-                connectedGrid.union(index1D, xyTo1D(row - 1, col));
-            if (col < gridSize && isOpen(row, col + 1))
-                connectedGrid.union(index1D, xyTo1D(row, col + 1));
-            if (col > 1 && isOpen(row, col - 1))
-                connectedGrid.union(index1D, xyTo1D(row, col - 1));
+            // Indices for adjacent sites
+            int bottomAdj = xyTo1D(row + 1, col);
+            int topAdj = xyTo1D(row - 1, col);
+            int leftAdj = xyTo1D(row, col - 1);
+            int rightAdj = xyTo1D(row, col + 1);
+
+            // Link the site in question to its open neighbors and update new root with the
+            // Bitwise OR of the previous roots
+            // It is imperative to handle the state of the site being opened before union
+            // with the adjacent site because the root site will change after the union.
+            if (row < gridSize && (percState[bottomAdj] & OPEN) == OPEN) {
+                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(bottomAdj)]);
+                connGrid.union(index1D, bottomAdj);
+            }
+            if (row > 1 && (percState[topAdj] & OPEN) == OPEN) {
+                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(topAdj)]);
+                connGrid.union(index1D, topAdj);
+            }
+            if (col < gridSize && (percState[rightAdj] & OPEN) == OPEN) {
+                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(rightAdj)]);
+                connGrid.union(index1D, rightAdj);
+            }
+            if (col > 1 && (percState[leftAdj] & OPEN) == OPEN) {
+                percState[index1D] = (byte)(percState[index1D] | percState[connGrid.find(leftAdj)]);
+                connGrid.union(index1D, leftAdj);
+            }
+
+            // Update state of site in question with state of root index
+            int rootIndex = connGrid.find(index1D);
+            percState[rootIndex] = (byte)(percState[rootIndex] | percState[index1D]);
+            if ((byte)(percState[rootIndex] & PERCOLATES) == PERCOLATES) {
+                systemPercolates = true;
+            }
         }
     }
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         validateIndices(row, col);
-        return openSites[xyTo1D(row, col)];
+        return (percState[xyTo1D(row, col)] & OPEN) == OPEN;
     }
 
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         validateIndices(row, col);
-        return connectedGrid.find(xyTo1D(row, col)) == connectedGrid.find(virtualTop);
+        // Check state of root index of site in question
+        return isOpen(row, col) && (percState[connGrid.find(xyTo1D(row, col))] & FULL) == FULL;
     }
 
     // returns the number of open sites
@@ -86,6 +113,6 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return connectedGrid.find(virtualBot) == connectedGrid.find(virtualTop);
+        return systemPercolates;
     }
 }
