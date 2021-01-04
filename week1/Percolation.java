@@ -8,13 +8,13 @@ public class Percolation {
     private byte[] percState;
     private int gridSize, totalOpenSites;
     // Binary Representation: 00000001
-    private byte OPEN = Byte.valueOf("1");
+    private byte OPEN = Byte.parseByte("1");
     // Binary Representation: 00000010
-    private byte FULL = Byte.valueOf("2");
+    private byte FULL = Byte.parseByte("2");
     // Binary Representation: 00000100
-    private byte CONNTOBOT = Byte.valueOf("4");
+    private byte CONNTOBOT = Byte.parseByte("4");
     // Binary Representation: 00000111
-    private byte PERCOLATES = Byte.valueOf("7");
+    private byte PERCOLATES = Byte.parseByte("7");
     private boolean systemPercolates = false;
 
     // creates n-by-n grid, with all sites initially blocked
