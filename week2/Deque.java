@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.StdOut;
 
 /*
 *   Code adapted from: "https://algs4.cs.princeton.edu/13stacks/LinkedStack.java.html"
- */
+*/
 
 public class Deque<Item> implements Iterable<Item> {
     // Top of stack
