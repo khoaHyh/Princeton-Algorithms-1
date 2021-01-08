@@ -11,7 +11,7 @@ import edu.princeton.cs.algs4.StdRandom;
 public class RandomizedQueue<Item> implements Iterable<Item> {
     // Initial capacity of underlying resizing array
     private static final int INIT_CAPACITY = 8;
-    // array of items
+    // queue of elements
     private Item[] a;
     // number of elements on RandomizedQueue
     private int n;
@@ -56,18 +56,19 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     // remove and return a random item
     public Item dequeue() {
         checkEmptyQueue();
-        Item item = a[StdRandom.uniform(0, n)];
+        StdRandom.shuffle(a, 0, n);
+        Item item = a[n-1];
         a[n-1] = null;
         n--;
         // Shrink size of array if necessary
-        if (n > 0 && n == a.length / 4) resize(a.length / 2);
+        if (n > 0 && n == a.length/4) resize(a.length / 2);
         return item;
     }
 
     // return a random item (but do not remove it)
     public Item sample() {
         checkEmptyQueue();
-        return a[StdRandom.uniform(0, n)];
+        return a[StdRandom.uniform(n)];
     }
 
     // return an independent iterator over items in random order
@@ -77,23 +78,19 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private class RandomizedQueueIterator implements Iterator<Item> {
         private int i;
+        private final Item[] copyA = (Item[]) new Object[n];;
 
         public RandomizedQueueIterator() {
-            StdRandom.shuffle(a);
+            if (n >= 0) System.arraycopy(a, 0, copyA, 0, n);
+            StdRandom.shuffle(copyA, 0, n);
             i = n - 1;
         }
-
-        public boolean hasNext() {
-            return i >= 0;
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
+        public boolean hasNext() { return i >= 0; }
+        public void remove() { throw new UnsupportedOperationException(); }
 
         public Item next() {
-            if (!hasNext()) throw new NoSuchElementException();
-            return a[i--];
+            if (!hasNext()) throw new NoSuchElementException("No more items to return.");
+            return copyA[i--];
         }
     }
 
@@ -101,19 +98,25 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public static void main(String[] args) {
         RandomizedQueue<Integer> rq = new RandomizedQueue<>();
 //        while (!StdIn.isEmpty()) {
-//            Integer item = StdIn.readInt();
+//            String item = StdIn.readString();
 //            if (!item.equals("-")) {
 //                rq.enqueue(item);
-//            } else if (!rq.isEmpty()) StdOut.print(rq.dequeue() + " ");
+//            } else if (!rq.isEmpty()) {
+//                StdOut.print(rq.dequeue() + " ");
+////                for (String i : rq) StdOut.print(i + " ");
+//            }
 //        }
 
-        // Test iterator
+//         Test iterator
         int n = 5;
         for (int i = 0; i < n; i++)
             rq.enqueue(i);
-        for (int a : rq)
-            for (int b: rq)
+        for (int a : rq) {
+            for (int b : rq)
                 StdOut.print(a + "-" + b + " ");
+            StdOut.println();
+        }
+
         StdOut.println("(" + rq.size() + " left on the randomized queue)");
     }
 }

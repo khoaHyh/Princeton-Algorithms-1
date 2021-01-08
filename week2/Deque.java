@@ -19,6 +19,7 @@ public class Deque<Item> implements Iterable<Item> {
     private class Node {
         private Item item;
         private Node next;
+        private Node prev;
     }
 
     // construct an empty deque
@@ -30,7 +31,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     // is the deque empty?
     public boolean isEmpty() {
-        return first == null;
+        return n == 0;
     }
 
     // return the number of items on the deque
@@ -48,11 +49,14 @@ public class Deque<Item> implements Iterable<Item> {
     public void addFirst(Item item) {
         checkNullArg(item);
         Node oldFirst = first;
-        if (n == 1)
-            last = oldFirst;
         first = new Node();
         first.item = item;
-        first.next = oldFirst;
+        if (isEmpty()) {
+            last = first;
+        } else {
+            first.next = oldFirst;
+            oldFirst.prev = first;
+        }
         n++;
         assert check();
     }
@@ -61,12 +65,14 @@ public class Deque<Item> implements Iterable<Item> {
     public void addLast(Item item) {
         checkNullArg(item);
         Node oldLast = last;
-        // If there is only one item in the deque, set first pointer to = last
-        if (n == 1) first = last;
         last = new Node();
         last.item = item;
-        // If the deque is not empty, set the old last pointer to point to the new one
-        if (!isEmpty()) oldLast.next = last;
+        if (isEmpty()) {
+            first = last;
+        } else {
+            last.prev = oldLast;
+            oldLast.next = last;
+        }
         n++;
         assert check();
     }
@@ -83,6 +89,7 @@ public class Deque<Item> implements Iterable<Item> {
         Item item = first.item;
         first = first.next;
         n--;
+        if (isEmpty()) last = first;
         assert check();
         return item;
     }
@@ -90,18 +97,10 @@ public class Deque<Item> implements Iterable<Item> {
     // remove and return the item from the back
     public Item removeLast() {
         checkDeque();
-        Node temp = first;
         Item item = last.item;
-        if (temp.next == null) {
-            first = last = null;
-        } else {
-            // Find second last node in linked list
-            while (temp.next.next != null)
-                temp = temp.next;
-            temp.next = null;
-            last = temp;
-        }
+        last = last.prev;
         n--;
+        if (isEmpty()) first = last;
         assert check();
         return item;
     }
@@ -154,11 +153,10 @@ public class Deque<Item> implements Iterable<Item> {
         while (!StdIn.isEmpty()) {
             String item = StdIn.readString();
             if (!item.equals("-")) {
-                deque.addFirst(item);
-//                deque.addLast(item);
+//                deque.addFirst(item);
+                deque.addLast(item);
             } else if (!deque.isEmpty()) {
                 StdOut.println(deque.removeFirst() + " ");
-                StdOut.println(deque.size());
 //                StdOut.println(deque.removeLast() + " ");
             }
         }
