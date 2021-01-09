@@ -56,8 +56,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     // remove and return a random item
     public Item dequeue() {
         checkEmptyQueue();
-        StdRandom.shuffle(a, 0, n);
-        Item item = a[n-1];
+//        StdRandom.shuffle(a, 0, n);
+        int randomIndex = StdRandom.uniform(n);
+        Item item = a[randomIndex];
+        a[randomIndex] = a[n - 1];
         a[n-1] = null;
         n--;
         // Shrink size of array if necessary
@@ -96,26 +98,26 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // unit testing (required)
     public static void main(String[] args) {
-        RandomizedQueue<Integer> rq = new RandomizedQueue<>();
-//        while (!StdIn.isEmpty()) {
-//            String item = StdIn.readString();
-//            if (!item.equals("-")) {
-//                rq.enqueue(item);
-//            } else if (!rq.isEmpty()) {
-//                StdOut.print(rq.dequeue() + " ");
-////                for (String i : rq) StdOut.print(i + " ");
-//            }
-//        }
+        RandomizedQueue<String> rq = new RandomizedQueue<>();
+        while (!StdIn.isEmpty()) {
+            String item = StdIn.readString();
+            if (!item.equals("-")) {
+                rq.enqueue(item);
+            } else if (!rq.isEmpty()) {
+                StdOut.print(rq.dequeue() + " ");
+//                for (String i : rq) StdOut.print(i + " ");
+            }
+        }
 
 //         Test iterator
-        int n = 5;
-        for (int i = 0; i < n; i++)
-            rq.enqueue(i);
-        for (int a : rq) {
-            for (int b : rq)
-                StdOut.print(a + "-" + b + " ");
-            StdOut.println();
-        }
+//        int n = 5;
+//        for (int i = 0; i < n; i++)
+//            rq.enqueue(String.valueOf(i));
+//        for (String a : rq) {
+//            for (String b : rq)
+//                StdOut.print(a + "-" + b + " ");
+//            StdOut.println();
+//        }
 
         StdOut.println("(" + rq.size() + " left on the randomized queue)");
     }
