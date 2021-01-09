@@ -95,7 +95,10 @@ public class Deque<Item> implements Iterable<Item> {
         first = first.next;
         n--;
         // To avoid loitering
-        if (isEmpty()) last = null;
+        if (isEmpty())
+            last = null;
+        else
+            first.prev = null;
         return item;
     }
 
@@ -106,7 +109,10 @@ public class Deque<Item> implements Iterable<Item> {
         last = last.prev;
         n--;
         // To avoid loitering
-        if (isEmpty()) first = null;
+        if (isEmpty())
+            first = null;
+        else
+            last.next = null;
         return item;
     }
 
@@ -131,23 +137,23 @@ public class Deque<Item> implements Iterable<Item> {
     // unit testing (required)
     public static void main(String[] args) {
         Deque<String> deque = new Deque<>();
-        while (!StdIn.isEmpty()) {
-            String item = StdIn.readString();
-            if (!item.equals("-")) {
-//                deque.addFirst(item);
-                deque.addLast(item);
-            } else if (!deque.isEmpty()) {
-                StdOut.println(deque.removeFirst() + " ");
-//                StdOut.println(deque.removeLast() + " ");
-            }
-        }
-        StdOut.println("(" + deque.size() + " left on deque)");
+//        while (!StdIn.isEmpty()) {
+//            String item = StdIn.readString();
+//            if (!item.equals("-")) {
+////                deque.addFirst(item);
+//                deque.addLast(item);
+//            } else if (!deque.isEmpty()) {
+//                StdOut.println(deque.removeFirst() + " ");
+////                StdOut.println(deque.removeLast() + " ");
+//            }
+//        }
+//        StdOut.println("(" + deque.size() + " left on deque)");
 
-//        deque.addLast("1");
-//        deque.addFirst("2");
-//        StdOut.println(deque.removeFirst());
-//        deque.addLast("4");
-//        deque.addFirst("5");
-//        StdOut.println(deque.removeLast());
+        deque.addLast("1");
+        deque.addLast("2");
+        StdOut.println(deque.removeLast());
+        for (String i : deque)
+            StdOut.print(i + " ");
+        StdOut.println();
     }
 }
