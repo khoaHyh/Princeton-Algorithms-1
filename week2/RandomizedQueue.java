@@ -80,7 +80,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private class RandomizedQueueIterator implements Iterator<Item> {
         private int i;
-        private final Item[] copyA = (Item[]) new Object[n];;
+        private final Item[] copyA = (Item[]) new Object[n];
 
         public RandomizedQueueIterator() {
             if (n >= 0) System.arraycopy(a, 0, copyA, 0, n);
@@ -105,7 +105,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
                 rq.enqueue(item);
             } else if (!rq.isEmpty()) {
                 StdOut.print(rq.dequeue() + " ");
-//                for (String i : rq) StdOut.print(i + " ");
             }
         }
 
