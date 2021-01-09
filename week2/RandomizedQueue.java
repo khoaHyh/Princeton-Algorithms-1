@@ -56,8 +56,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     // remove and return a random item
     public Item dequeue() {
         checkEmptyQueue();
-//        StdRandom.shuffle(a, 0, n);
         int randomIndex = StdRandom.uniform(n);
+        // Swap random element with the element at the back of the queue
         Item item = a[randomIndex];
         a[randomIndex] = a[n - 1];
         a[n-1] = null;

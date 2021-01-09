@@ -26,7 +26,6 @@ public class Deque<Item> implements Iterable<Item> {
     public Deque() {
         first = last = null;
         n = 0;
-//        assert check();
     }
 
     // is the deque empty?
@@ -56,12 +55,12 @@ public class Deque<Item> implements Iterable<Item> {
             last = first;
         } else if (n == 1) {
             last.prev = first;
+            first.next = last;
         } else {
             first.next = oldFirst;
             oldFirst.prev = first;
         }
         n++;
-//        assert check();
     }
 
     // add the item to the back
@@ -75,12 +74,12 @@ public class Deque<Item> implements Iterable<Item> {
             first = last;
         } else if (n == 1) {
             first.next = last;
+            last.prev = first;
         } else {
             last.prev = oldLast;
             oldLast.next = last;
         }
         n++;
-//        assert check();
     }
 
     // Prevent item remove... method call when deque is empty
@@ -97,7 +96,6 @@ public class Deque<Item> implements Iterable<Item> {
         n--;
         // To avoid loitering
         if (isEmpty()) last = null;
-//        assert check();
         return item;
     }
 
@@ -109,7 +107,6 @@ public class Deque<Item> implements Iterable<Item> {
         n--;
         // To avoid loitering
         if (isEmpty()) first = null;
-//        assert check();
         return item;
     }
 
@@ -131,49 +128,26 @@ public class Deque<Item> implements Iterable<Item> {
         }
     }
 
-    // Check internal invariants
-//    private boolean check() {
-//        if (n < 0) {
-//            return false;
-//        }
-//        if (n == 0 && first != null) {
-//            return false;
-//        } else if (n == 1) {
-//            if (first == null) return false;
-//            if (first.next != null) return false;
-//        } else {
-//            if (first == null) return false;
-//            if (first.next == null) return false;
-//        }
-//
-//        // Check internal consistency of instance variable n
-//        int numberOfNodes = 0;
-//        for (Node x = first; x != null && numberOfNodes <= n; x = x.next) {
-//            numberOfNodes++;
-//        }
-//        return numberOfNodes == n;
-//    }
-
     // unit testing (required)
     public static void main(String[] args) {
-        Deque<Integer> deque = new Deque<>();
-//        while (!StdIn.isEmpty()) {
-//            String item = StdIn.readString();
-//            if (!item.equals("-")) {
-////                deque.addFirst(item);
-//                deque.addLast(item);
-//            } else if (!deque.isEmpty()) {
-//                StdOut.println(deque.removeFirst() + " ");
-////                StdOut.println(deque.removeLast() + " ");
-//            }
-//        }
-//        StdOut.println("(" + deque.size() + " left on deque)");
+        Deque<String> deque = new Deque<>();
+        while (!StdIn.isEmpty()) {
+            String item = StdIn.readString();
+            if (!item.equals("-")) {
+//                deque.addFirst(item);
+                deque.addLast(item);
+            } else if (!deque.isEmpty()) {
+                StdOut.println(deque.removeFirst() + " ");
+//                StdOut.println(deque.removeLast() + " ");
+            }
+        }
+        StdOut.println("(" + deque.size() + " left on deque)");
 
-        deque.addLast(1);
-        StdOut.println(deque.isEmpty());
-        StdOut.println(deque.removeFirst());
-        StdOut.println(deque.isEmpty());
-//        for (int i : deque)
-//            StdOut.print(i + "-");
+//        deque.addLast("1");
+//        deque.addFirst("2");
+//        StdOut.println(deque.removeFirst());
+//        deque.addLast("4");
+//        deque.addFirst("5");
+//        StdOut.println(deque.removeLast());
     }
 }
