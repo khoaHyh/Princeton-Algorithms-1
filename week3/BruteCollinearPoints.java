@@ -35,7 +35,7 @@ public class BruteCollinearPoints {
 
         // Check for null and repeated points
         for (int i = 0; i < points.length - 1; i++) {
-            checkNull(points[i]);
+            if (points[i] == null) throw new IllegalArgumentException("Point in array is null.");
             for (int j = i + 1; j < points.length; j++)
                 if (points[i].compareTo(points[j]) == 0)
                     throw new IllegalArgumentException("Argument to constructor contains repeated point.");
@@ -68,12 +68,6 @@ public class BruteCollinearPoints {
     // The number of line segments
     public int numberOfSegments() {
         return lineSegAL.size();
-    }
-
-    // Calculates binomial coefficient (n choose k)
-
-    private void checkNull(Point point) {
-        if (point == null) throw new IllegalArgumentException("Point in array is null.");
     }
 
     // The line segment
