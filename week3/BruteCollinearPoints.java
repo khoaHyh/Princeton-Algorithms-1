@@ -16,7 +16,8 @@ import java.util.Arrays;
 *   Lessons learned:
 *   - ArrayLists are powerful structures because its not a fixed size
 *       - Comes with methods to add, remove, etc.
-*   - Mini-optimizations with conditionals
+*   - Mini-optimizations by adding conditionals (situational) before the last loop
+*       in nested for loops.
 *
 *   Improvements:
 *   - Implementing N choose k (N choose 4)
@@ -25,8 +26,6 @@ import java.util.Arrays;
 * */
 
 public class BruteCollinearPoints {
-    // Points array
-    Point[] arr;
     // The number of line segments
     int n = 0;
     // Array of line segments
@@ -36,35 +35,33 @@ public class BruteCollinearPoints {
     // Finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
         if (points == null) throw new IllegalArgumentException("Constructor argument is null.");
-
-        arr = points;
-
+        
         // Check for null and repeated points
-        for (int i = 0; i < arr.length - 1; i++) {
-            checkNull(arr[i]);
-            for (int j = i + 1; j < arr.length; j++)
-                if (arr[i].compareTo(arr[j]) == 0)
+        for (int i = 0; i < points.length - 1; i++) {
+            checkNull(points[i]);
+            for (int j = i + 1; j < points.length; j++)
+                if (points[i].compareTo(points[j]) == 0)
                     throw new IllegalArgumentException("Argument to constructor contains repeated point.");
 
         }
 
         // Sort by natural order
-        Arrays.sort(arr);
+        Arrays.sort(points);
 
         // Iterate through cWorst case n^4
-        for (int i = 0; i < arr.length - 3; i++) {
-            for (int j = i + 1; j < arr.length - 2; j++) {
-                double slope1 = arr[i].slopeTo(arr[j]);
-                for (int k = j + 1; k < arr.length - 1; k++) {
-                    double slope2 = arr[j].slopeTo(arr[k]);
+        for (int i = 0; i < points.length - 3; i++) {
+            for (int j = i + 1; j < points.length - 2; j++) {
+                double slope1 = points[i].slopeTo(points[j]);
+                for (int k = j + 1; k < points.length - 1; k++) {
+                    double slope2 = points[j].slopeTo(points[k]);
                     // If the first slope is not the same value as the
                     // second slope there won't be a line segment.
                     if (Double.compare(slope1, slope2) != 0) continue;
-                    for (int l = k + 1; l < arr.length; l++) {
-                        double slope3 = arr[k].slopeTo(arr[l]);
+                    for (int l = k + 1; l < points.length; l++) {
+                        double slope3 = points[k].slopeTo(points[l]);
                         if (Double.compare(slope1, slope2) == 0 && Double.compare(slope2, slope3) == 0) {
                             n++;
-                            lineSegAL.add(new LineSegment(arr[i], arr[l]));
+                            lineSegAL.add(new LineSegment(points[i], points[l]));
                         }
                     }
                 }
