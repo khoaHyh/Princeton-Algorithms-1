@@ -26,16 +26,13 @@ import java.util.Arrays;
 * */
 
 public class BruteCollinearPoints {
-    // The number of line segments
-    int n = 0;
     // Array of line segments
     private final ArrayList<LineSegment> lineSegAL = new ArrayList<>();
-
 
     // Finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
         if (points == null) throw new IllegalArgumentException("Constructor argument is null.");
-        
+
         // Check for null and repeated points
         for (int i = 0; i < points.length - 1; i++) {
             checkNull(points[i]);
@@ -60,7 +57,6 @@ public class BruteCollinearPoints {
                     for (int l = k + 1; l < points.length; l++) {
                         double slope3 = points[k].slopeTo(points[l]);
                         if (Double.compare(slope1, slope2) == 0 && Double.compare(slope2, slope3) == 0) {
-                            n++;
                             lineSegAL.add(new LineSegment(points[i], points[l]));
                         }
                     }
@@ -71,7 +67,7 @@ public class BruteCollinearPoints {
 
     // The number of line segments
     public int numberOfSegments() {
-        return n;
+        return lineSegAL.size();
     }
 
     // Calculates binomial coefficient (n choose k)
@@ -82,8 +78,7 @@ public class BruteCollinearPoints {
 
     // The line segment
     public LineSegment[] segments() {
-//        int nChoose4 = binomialIntReliable(n, 4);
-        return lineSegAL.toArray(new LineSegment[n]);
+        return lineSegAL.toArray(new LineSegment[lineSegAL.size()]);
     }
 
     // For testing
