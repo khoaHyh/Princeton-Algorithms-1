@@ -8,7 +8,6 @@
  *
  ******************************************************************************/
 
-import java.util.Arrays;
 import java.util.Comparator;
 import edu.princeton.cs.algs4.StdDraw;
 
@@ -103,7 +102,7 @@ public class Point implements Comparable<Point> {
         if (this.y < that.y || (this.y == that.y && this.x < that.x)) return -1;
         // If this point is equal to the argument point
         else if (this.x == that.x && this.y == that.y) return 0;
-        // If this point is greater than the argument point
+        // Only case left is if the point is greater than the argument point
         else return +1;
     }
 
@@ -138,24 +137,56 @@ public class Point implements Comparable<Point> {
     public static void main(String[] args) {
         Point invoke, pointA;
 
-        /* Vertical line segments should be +Infinity */
         invoke = new Point(2, 8);
         pointA = new Point(2, 4);
         assert invoke.slopeTo(pointA) == Double.POSITIVE_INFINITY
                 : "Vertical line segments should be +Infinity";
         System.out.println(invoke.slopeTo(pointA));
 
-        /* Horizontal line segments should be +0.0 */
         invoke = new Point(4, 7);
         pointA = new Point(6, 7);
         assert invoke.slopeTo(pointA) == +0.0
                 : "Horizontal line segments should be +0.0";
         System.out.println(invoke.slopeTo(pointA));
 
-        /* The slope of a point with himself should be -Infinity */
         Point p = new Point(3, 7);
         assert p.slopeTo(p) == Double.NEGATIVE_INFINITY
-                : "The slope of a point with himself should be -Infinity";
+                : "The slope of a point with itself should be -Infinity";
         System.out.println(p.slopeTo(p));
+
+        // y0 < y1 (this < that), expected: -1
+        invoke = new Point(8, 1);
+        pointA = new Point(1, 8);
+        System.out.println(invoke.compareTo(pointA));
+
+        // y0 = y1 and x0 < x1 (this < that), expected: -1
+        invoke = new Point(1, 3);
+        pointA = new Point(2, 3);
+        System.out.println(invoke.compareTo(pointA));
+
+        // x0 = x1 and y0 = y1 (this == that), expected: 0
+        invoke = new Point(5, 5);
+        pointA = new Point(5, 5);
+        System.out.println(invoke.compareTo(pointA));
+
+        // y0 > y1, expected: 1
+        invoke = new Point(3, 9);
+        pointA = new Point(3, 4);
+        System.out.println(invoke.compareTo(pointA));
+
+        // x0 > x1, expected: 1
+        invoke = new Point(4, 9);
+        pointA = new Point(2, 9);
+        System.out.println(invoke.compareTo(pointA));
+
+        // y0 > y1 && x0 > x1, expected: 1
+        invoke = new Point(5, 8);
+        pointA = new Point(4, 7);
+        System.out.println(invoke.compareTo(pointA));
+
+        // y0 < y1 && x0 > x1, expected: -1
+        invoke = new Point(2, 6);
+        pointA = new Point(1, 7);
+        System.out.println(invoke.compareTo(pointA));
     }
 }
