@@ -19,20 +19,9 @@ public class FastCollinearPoints {
 
     // Finds all lines segments containing 4 or more points
     public FastCollinearPoints(Point[] points) {
-        if (points == null) throw new IllegalArgumentException("Argument is null.");
+        checkIllegalArguments(points);
 
         int n = points.length;
-
-        // Check for null and repeated points
-        for (int i = 0; i < n - 1; i++) {
-            checkNull(points[i]);
-            for (int j = i + 1; j < n; j++) {
-                if (j == n - 1) checkNull(points[j]);
-                if (points[i].compareTo(points[j]) == 0)
-                    throw new IllegalArgumentException("Argument to constructor contains repeated point.");
-            }
-        }
-
         Point[] copyPoints = Arrays.copyOf(points, n);
         // Arrays.sort for Object[] arrays is mergesort. As we learned from lecture/textbook, mergesort
         //  is stable. We will sort by natural order first to make sure we sort from ascending order first.
@@ -69,8 +58,20 @@ public class FastCollinearPoints {
         }
     }
 
-    private void checkNull(Point point) {
-        if (point == null) throw new IllegalArgumentException("Constructor argument is null.");
+    private void checkIllegalArguments(Point[] pArray) {
+        // Check for null points
+        if (pArray == null)
+            throw new IllegalArgumentException("Constructor argument is null.");
+        for (Point i : pArray)
+            if (i == null) throw new IllegalArgumentException("Null point in array.");
+
+        // Check for repeated points
+        for (int i = 0; i < pArray.length - 1; i++) {
+            for (int j = i + 1; j < pArray.length; j++) {
+                if (pArray[i].compareTo(pArray[j]) == 0)
+                    throw new IllegalArgumentException("Argument to constructor contains repeated point.");
+            }
+        }
     }
 
     // The number of line segments

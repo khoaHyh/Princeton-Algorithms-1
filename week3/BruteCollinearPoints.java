@@ -1,6 +1,6 @@
-//import edu.princeton.cs.algs4.In;
-//import edu.princeton.cs.algs4.StdDraw;
-//import edu.princeton.cs.algs4.StdOut;
+// import edu.princeton.cs.algs4.In;
+// import edu.princeton.cs.algs4.StdDraw;
+// import edu.princeton.cs.algs4.StdOut;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -31,33 +31,24 @@ public class BruteCollinearPoints {
 
     // Finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
-        if (points == null) throw new IllegalArgumentException("Constructor argument is null.");
+        checkIllegalArguments(points);
 
-        Point[] arr = Arrays.copyOf(points, points.length);
-
-        // Check for null and repeated points
-        for (int i = 0; i < arr.length - 1; i++) {
-            checkNull(arr[i]);
-            for (int j = i + 1; j < arr.length; j++) {
-                if (j == arr.length - 1) checkNull(arr[j]);
-                if (arr[i].compareTo(arr[j]) == 0)
-                    throw new IllegalArgumentException("Argument to constructor contains repeated point.");
-            }
-        }
+        int n = points.length;
+        Point[] arr = Arrays.copyOf(points, n);
 
         // Sort by natural order
         Arrays.sort(arr);
 
         // Iterate through cWorst case n^4
-        for (int i = 0; i < arr.length - 3; i++)
-            for (int j = i + 1; j < arr.length - 2; j++) {
+        for (int i = 0; i < n - 3; i++)
+            for (int j = i + 1; j < n - 2; j++) {
                 double slope1 = arr[i].slopeTo(arr[j]);
-                for (int k = j + 1; k < arr.length - 1; k++) {
+                for (int k = j + 1; k < n - 1; k++) {
                     double slope2 = arr[j].slopeTo(arr[k]);
                     // If the first slope is not the same value as the
                     // second slope there won't be a line segment.
                     if (Double.compare(slope1, slope2) != 0) continue;
-                    for (int l = k + 1; l < arr.length; l++) {
+                    for (int l = k + 1; l < n; l++) {
                         double slope3 = arr[k].slopeTo(arr[l]);
                         if (Double.compare(slope1, slope2) == 0 && Double.compare(slope2, slope3) == 0) {
                             lineSegAL.add(new LineSegment(arr[i], arr[l]));
@@ -68,8 +59,20 @@ public class BruteCollinearPoints {
 
     }
 
-    private void checkNull(Point point) {
-        if (point == null) throw new IllegalArgumentException("Constructor argument is null.");
+    private void checkIllegalArguments(Point[] pArray) {
+        // Check for null points
+        if (pArray == null)
+            throw new IllegalArgumentException("Constructor argument is null.");
+        for (Point i : pArray)
+            if (i == null) throw new IllegalArgumentException("Null point in array.");
+
+        // Check for repeated points
+        for (int i = 0; i < pArray.length - 1; i++) {
+            for (int j = i + 1; j < pArray.length; j++) {
+                if (pArray[i].compareTo(pArray[j]) == 0)
+                    throw new IllegalArgumentException("Argument to constructor contains repeated point.");
+            }
+        }
     }
 
     // The number of line segments
