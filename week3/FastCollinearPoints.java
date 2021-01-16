@@ -1,11 +1,8 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.StdRandom;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 /*
  *   Notes:
@@ -24,36 +21,56 @@ public class FastCollinearPoints {
     public FastCollinearPoints(Point[] points) {
         if (points == null) throw new IllegalArgumentException("Argument is null.");
 
-        Point[] copyPoints = Arrays.copyOf(points, points.length);
+        int n = points.length;
 
         // Check for null and repeated points
-        for (int i = 0; i < copyPoints.length - 1; i++) {
-            if (copyPoints[i] == null) throw new IllegalArgumentException("Constructor argument is null.");
-            for (int j = i + 1; j < copyPoints.length; j++)
-                if (copyPoints[i].compareTo(copyPoints[j]) == 0)
+        for (int i = 0; i < n - 1; i++) {
+            checkNull(points[i]);
+            for (int j = i + 1; j < n; j++) {
+                if (j == n - 1) checkNull(points[j]);
+                if (points[i].compareTo(points[j]) == 0)
                     throw new IllegalArgumentException("Argument to constructor contains repeated point.");
+            }
         }
 
-        // Preserve natural stable order
+        Point[] copyPoints = Arrays.copyOf(points, n);
+        // Arrays.sort for Object[] arrays is mergesort. As we learned from lecture/textbook, mergesort
+        //  is stable. We will sort by natural order first to make sure we sort from ascending order first.
         Arrays.sort(copyPoints);
 
-        for (int i = 0; i < copyPoints.length; i++) {
-            Arrays.sort(copyPoints);
+        // Iterate through the natural order of the Points array.
+        // We use n - 3 because the last 3 points are unable to form a line segment.
+        for (int i = 0; i < n - 3; i++) {
             Point p = copyPoints[i];
-            // Sort the points according to the slopes they make with p)
-            Arrays.sort(copyPoints, p.slopeOrder());
+
+            Point[] slopeSortP = new Point[n];
+            // Copy from the first element of naturally sorted array to the new array, i times.
+            System.arraycopy(copyPoints, 0, slopeSortP, 0, i);
+            // Copy from i + 1 of naturally sorted array to point i of the new array, n - i - 1 times.
+            System.arraycopy(copyPoints, i + 1, slopeSortP, i, n - i - 1);
+
+            // Sort the points according to the slopes they make with p.
+            Arrays.sort(slopeSortP, 0, n - 1, p.slopeOrder());
             int currentStart = 0;
-            for (int j = 1; j < copyPoints.length; j++) {
-                if (copyPoints[j].slopeTo(p) != copyPoints[currentStart].slopeTo(p)) {
-                    int lineSegLen = j - currentStart;
+            for (int j = 1; j < n; j++) {
+                // Last element in slopeSortP array is null
+                if (slopeSortP[j] == null ||  slopeSortP[j].slopeTo(p) != slopeSortP[currentStart].slopeTo(p)) {
+                    int adjCount = j - currentStart;
                     // Ensure maximal line segment by comparing start of current segment with p
-                    if (lineSegLen >= 3 && copyPoints[currentStart].compareTo(p) > 0) {
-                        lineSegAL.add(new LineSegment(p, copyPoints[j - 1]));
+                    if (adjCount >= 3) {
+                        assert slopeSortP[currentStart] != null;
+                        if (slopeSortP[currentStart].compareTo(p) > 0) {
+                            lineSegAL.add(new LineSegment(p, slopeSortP[j - 1]));
+                        }
                     }
                     currentStart = j;
                 }
             }
         }
+    }
+
+    private void checkNull(Point point) {
+        if (point == null) throw new IllegalArgumentException("Constructor argument is null.");
     }
 
     // The number of line segments
@@ -67,44 +84,46 @@ public class FastCollinearPoints {
     }
 
     // For testing
-//    public static void main(String[] args) {
-//        // read the n points from a file
-//        In in = new In(args[0]);
-//        int n = in.readInt();
-//        Point[] points = new Point[n];
-//        for (int i = 0; i < n; i++) {
-//            int x = in.readInt();
-//            int y = in.readInt();
-//            points[i] = new Point(x, y);
+    public static void main(String[] args) {
+        // read the n points from a file
+        In in = new In(args[0]);
+        int n = in.readInt();
+        Point[] points = new Point[n];
+        for (int i = 0; i < n; i++) {
+            int x = in.readInt();
+            int y = in.readInt();
+            points[i] = new Point(x, y);
+        }
+
+        // To understand natural sort and stability
+//        for (int i = 0; i < points.length; i++) {
+//            Arrays.sort(points);
+//            Point p = points[i];
+//            StdOut.println("i: " + points[i]);
+//            Arrays.sort(points, p.slopeOrder());
+//            StdOut.println("iSlope: " + points[i]);
+//            for (int j = 1; j < points.length; j++) {
+//                StdOut.println("slope: " + p.slopeTo(points[j]) + ", j: " + points[j]);
+//            }
 //        }
-//
-////        // To understand slopeOrder()
-////        Arrays.sort(points);
-////        for (int i = 0; i < points.length; i++) {
-////            Arrays.sort(points);
-////            Arrays.sort(points, points[i].slopeOrder());
-////            if (i == 0 || i == 2 || i == 4) StdOut.println("i: " + points[i]);
-////            for (int j = 1; j < points.length; j++) {
-////                if (i == 0 || i == 2 || i == 4)
-////                    StdOut.println("slope: " + points[i].slopeTo(points[j]) + ", j: " + points[j]);
-////            }
-////        }
 //
 //        // draw the points
-//        StdDraw.enableDoubleBuffering();
-//        StdDraw.setXscale(0, 32768);
-//        StdDraw.setYscale(0, 32768);
-//        for (Point p : points) {
-//            p.draw();
-//        }
-//        StdDraw.show();
-//
-//        // print and draw the line segments
-//        FastCollinearPoints collinear = new FastCollinearPoints(points);
-//        for (LineSegment segment : collinear.segments()) {
-//            StdOut.println(segment);
-//            segment.draw();
-//        }
-//        StdDraw.show();
-//    }
+        StdDraw.enableDoubleBuffering();
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
+        for (Point p : points) {
+            p.draw();
+        }
+        StdDraw.show();
+
+        // print and draw the line segments
+        FastCollinearPoints collinear = new FastCollinearPoints(points);
+        for (LineSegment segment : collinear.segments()) {
+            StdOut.println(segment);
+            segment.draw();
+        }
+        StdDraw.show();
+
+        StdOut.println("Number of line segments: " + collinear.numberOfSegments());
+    }
 }

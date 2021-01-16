@@ -1,6 +1,6 @@
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.StdDraw;
-import edu.princeton.cs.algs4.StdOut;
+//import edu.princeton.cs.algs4.In;
+//import edu.princeton.cs.algs4.StdDraw;
+//import edu.princeton.cs.algs4.StdOut;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -37,10 +37,12 @@ public class BruteCollinearPoints {
 
         // Check for null and repeated points
         for (int i = 0; i < arr.length - 1; i++) {
-            if (arr[i] == null) throw new IllegalArgumentException("Point in array is null.");
-            for (int j = i + 1; j < arr.length; j++)
+            checkNull(arr[i]);
+            for (int j = i + 1; j < arr.length; j++) {
+                if (j == arr.length - 1) checkNull(arr[j]);
                 if (arr[i].compareTo(arr[j]) == 0)
                     throw new IllegalArgumentException("Argument to constructor contains repeated point.");
+            }
         }
 
         // Sort by natural order
@@ -64,6 +66,10 @@ public class BruteCollinearPoints {
                 }
             }
 
+    }
+
+    private void checkNull(Point point) {
+        if (point == null) throw new IllegalArgumentException("Constructor argument is null.");
     }
 
     // The number of line segments
