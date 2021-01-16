@@ -8,14 +8,18 @@
  *
  ******************************************************************************/
 
-import java.util.Comparator;
-import edu.princeton.cs.algs4.StdDraw;
+/*  ~Personal Notes ~
+ *
+ *  Lessons learned:
+ *   - Comparators/Comparable
+ *   - Negative zero and Positive zero with floating-point numbers
+ *   - Assertion
+ *   - Lambda expression and method reference
+ *   - How to represent a point in a plane
+ * */
 
 /*
     Useful tools/tips:
-    - Arrays.sort(a, lo, hi)
-        - sorts the subarray from a[lo] to a[h-1] according to natural order of a[]
-        - We can use a Comparator as the 4th argument to sort according to an alternate order
     - Examples of Comparable and Comparator from lecture
     - Do not divide by 0. With integers, this produces a run-time exception.
         - Utilize the constants Double.POSITIVE_INFINITY and Double.NEGATIVE_INFINITY
@@ -26,6 +30,9 @@ import edu.princeton.cs.algs4.StdDraw;
     - Consider corner cases for slopeTo()
         - horizontal, vertical, and degenerate line segments
  */
+
+import java.util.Comparator;
+import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
     private final int x;     // x-coordinate of this point
@@ -113,8 +120,17 @@ public class Point implements Comparable<Point> {
      * @return the Comparator that defines this ordering on points
      */
     public Comparator<Point> slopeOrder() {
+        // Return new Comparator object
+//        return new Comparator<Point>() {
+//            @Override
+//            public int compare(Point po1, Point po2) {
+//                double slope1 = slopeTo(po1);
+//                double slope2 = slopeTo(po2);
+//                return Double.compare(slope1, slope2);
+//            }
+//        };
         // Lambda expression:
-        //  return (point1, point2) -> Double.compare(slopeTo(point1), slopeTo(point2));
+//          return (point1, point2) -> Double.compare(slopeTo(point1), slopeTo(point2));
         // Below is a method reference:
         return Comparator.comparingDouble(this::slopeTo);
     }
