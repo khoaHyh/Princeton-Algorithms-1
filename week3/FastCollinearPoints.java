@@ -42,7 +42,8 @@ public class FastCollinearPoints {
             Arrays.sort(slopeSortP, 0, n - 1, p.slopeOrder());
             int currentStart = 0;
             for (int j = 1; j < n; j++) {
-                // Last element in slopeSortP array is null
+                // The last point in the array is null to check for any potential line segments that were forming
+                //  but would have otherwise been skipped.
                 if (slopeSortP[j] == null ||  slopeSortP[j].slopeTo(p) != slopeSortP[currentStart].slopeTo(p)) {
                     int adjCount = j - currentStart;
                     // Ensure maximal line segment by comparing start of current segment with p
@@ -97,16 +98,22 @@ public class FastCollinearPoints {
         }
 
         // To understand natural sort and stability
-//        for (int i = 0; i < points.length; i++) {
-//            Arrays.sort(points);
+//        Arrays.sort(points);
+//        for (int i = 0; i < n - 3; i++) {
 //            Point p = points[i];
-//            StdOut.println("i: " + points[i]);
-//            Arrays.sort(points, p.slopeOrder());
-//            StdOut.println("iSlope: " + points[i]);
-//            for (int j = 1; j < points.length; j++) {
-//                StdOut.println("slope: " + p.slopeTo(points[j]) + ", j: " + points[j]);
+//            StdOut.println("p: " + p);
+//            Point[] slopeSortP = new Point[n];
+//            System.arraycopy(points, 0, slopeSortP, 0, i);
+//            System.arraycopy(points, i + 1, slopeSortP, i, n - i - 1);
+//            // Sort the points according to the slopes they make with p.
+//            Arrays.sort(slopeSortP, 0, n - 1, p.slopeOrder());
+//            for (int j = 1; j < n; j++) {
+//                if (slopeSortP[j] == null)
+//                    continue;
+//                StdOut.println(slopeSortP[j].slopeTo(p) + ", " + slopeSortP[j]);
 //            }
 //        }
+
 //
 //        // draw the points
         StdDraw.enableDoubleBuffering();
