@@ -74,9 +74,10 @@ public class Solver {
         if (!isSolvable()) return null;
 
         Stack<Board> sequence = new Stack<>();
-        while (prevSearchNode != null) {
-            sequence.push(prevSearchNode.board);
-            prevSearchNode = prevSearchNode.previous;
+        Search node = prevSearchNode;
+        while (node != null) {
+            sequence.push(node.board);
+            node = node.previous;
         }
 
         return sequence;
