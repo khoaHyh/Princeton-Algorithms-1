@@ -4,8 +4,6 @@ import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
-    private Search prevSearchNode;
-
     // this private class allows us to store multiple instances of info as a "key"
     private static class Search implements Comparable<Search> {
         private Search previous;
@@ -13,23 +11,23 @@ public class Solver {
         private int moves = 0;
         private int manhattan;
 
-        public Search(Board board) {
-            this.board = board;
-            this.manhattan = this.board.manhattan();
-        }
-
         public Search(Board board, Search previous) {
             this.board = board;
             this.previous = previous;
-            this.moves = previous.moves + 1;
+            this.manhattan = this.board.manhattan();
+            if (previous != null)
+                this.moves = previous.moves + 1;
         }
 
         public int compareTo(Search that) {
             int thisPriority = this.manhattan + this.moves;
             int thatPriority = that.manhattan + that.moves;
-            return Integer.compare(thisPriority, thatPriority);
+            return thisPriority - thatPriority;
         }
     }
+
+    // previous search node that was dequeued from the priority queue
+    private Search prevSearchNode;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
@@ -37,10 +35,10 @@ public class Solver {
 
         // insert initial search node
         MinPQ<Search> mpq = new MinPQ<>();
-        mpq.insert(new Search(initial));
+        mpq.insert(new Search(initial, null));
 
         MinPQ<Search> twinMpq = new MinPQ<>();
-        twinMpq.insert(new Search(initial.twin()));
+        twinMpq.insert(new Search(initial.twin(), null));
 
         // check if the board is solvable or establish a trail of nodes otherwise
         while (true) {
