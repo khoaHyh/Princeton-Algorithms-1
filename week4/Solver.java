@@ -53,6 +53,8 @@ public class Solver {
         Search searchNode = pq.delMin();
         if (searchNode.board.isGoal()) return searchNode;
         for (Board x : searchNode.board.neighbors())
+            // prevent the initial node and neighbors that equal the previous board
+            //  from being inserted into the priority queue
             if (searchNode.previous == null || !x.equals(searchNode.previous.board))
                 pq.insert(new Search(x, searchNode));
 
@@ -74,7 +76,12 @@ public class Solver {
         if (!isSolvable()) return null;
 
         Stack<Board> sequence = new Stack<>();
+
+        // create a copy of the global node as to keep the key immutable
         Search node = prevSearchNode;
+
+        // use previous node and chase the pointers all the wway back
+        //  to the initial search node
         while (node != null) {
             sequence.push(node.board);
             node = node.previous;
