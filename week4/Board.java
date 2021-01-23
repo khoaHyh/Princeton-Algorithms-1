@@ -8,8 +8,9 @@ public class Board {
     private final int n;
     // Independent copy of tiles array
     private final byte[][] copyArr;
-    // Stores position of blank square, [row, col]
-    private final int[] blankSquare = new int[2];
+    // Stores position of the blank square
+    private int rowBs = 0;
+    private int colBs = 0;
 
     // check if the tile is in the correct place
     private boolean inWrongPlace(int row, int col) {
@@ -50,12 +51,6 @@ public class Board {
 
         return newArr;
     }
-    
-    // utility function to push a neighboring board onto an iterable
-    private void pushNeighbor(Stack<Board> neighbors, int row1, int col1, int row2, int col2) {
-        Board topNeighbor = new Board(swap(row1, col1, row2, col2));
-        neighbors.push(topNeighbor);
-    }
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -66,8 +61,10 @@ public class Board {
         for (int row = 0; row < n; row++)
             for (int col = 0; col < n; col++) {
                 if (copyArr[row][col] == 0) {
-                    blankSquare[0] = row;
-                    blankSquare[1] = col;
+//                    blankSquare[0] = row;
+//                    blankSquare[1] = col;
+                    rowBs = row;
+                    colBs = col;
                 }
                 this.copyArr[row][col] = intToByte(tiles[row][col]);
             }
@@ -117,10 +114,8 @@ public class Board {
 
                 int goalCol = tile - (goalRow * n)  - 1;
                 if (inWrongPlace(row, col) && tile != 0) {
-                    // Calculate vertical distance
-                    sum += addToSum(col, goalCol);
-                    // Calculate horizontal distance
-                    sum += addToSum(row, goalRow);
+                    // Calculate vertical + horizontal distance
+                    sum += addToSum(col, goalCol) + addToSum(row, goalRow);
                 }
             }
 
@@ -147,9 +142,6 @@ public class Board {
     public Iterable<Board> neighbors() {
         Stack<Board> neighbors = new Stack<>();
 
-        int rowBs = blankSquare[0];
-        int colBs = blankSquare[1];
-
         if (rowBs > 0) neighbors.push(new Board(swap(rowBs, colBs, rowBs - 1, colBs)));
         if (rowBs < n - 1) neighbors.push(new Board(swap(rowBs, colBs, rowBs + 1, colBs)));
         if (colBs > 0) neighbors.push(new Board(swap(rowBs, colBs, rowBs, colBs - 1)));
@@ -160,19 +152,13 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of tiles
     public Board twin() {
-        int a = StdRandom.uniform(n);
-        int b = StdRandom.uniform(n);
-        int x = StdRandom.uniform(n);
-        int y = StdRandom.uniform(n);
-
-        while (this.copyArr[a][b] == 0 && this.copyArr[x][y] == 0) {
-            a = StdRandom.uniform(n);
-            b = StdRandom.uniform(n);
-            x = StdRandom.uniform(n);
-            y = StdRandom.uniform(n);
-        }
-
-        return new Board(swap(a, b, x, y));
+        for (int row = 0; row < n; row++)
+            for (int col = 0; col < n - 1; col++) {
+                if (this.copyArr[row][col] != 0 && this.copyArr[row][col + 1] != 0) {
+                        return new Board(swap(row, col, row, col + 1));
+                    }
+                }
+        throw new RuntimeException("Invalid board, too many zeroes.");
     }
 
     // unit testing (not graded)
@@ -189,25 +175,23 @@ public class Board {
                 else a[i][j] = prevRowTile + (i * 3);
             }
 
-//        for (int i = 0; i < 3; i++)
-//            for (int j = 0; j < 3; j++) {
-//                int prevRowTile = j + 1;
-//
-//                if (i == 2 && j == 2) b[i][j] = 0;
-//                else b[i][j] = prevRowTile + (i * 3);
-//            }
-
-        int count = 8;
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++) {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++) {
                 int prevRowTile = j + 1;
 
-                if (i == n - 1 && j == n - 1) b[i][j] = 0;
-                else {
-                    b[i][j] = count;
-                    count--;
-                }
+                if (i == 2 && j == 2) b[i][j] = 0;
+                else b[i][j] = prevRowTile + (i * 3);
             }
+
+//        int count = 8;
+//        for (int i = 0; i < n; i++)
+//            for (int j = 0; j < n; j++) {
+//                if (i == n - 1 && j == n - 1) b[i][j] = 0;
+//                else {
+//                    b[i][j] = count;
+//                    count--;
+//                }
+//            }
 
         Board test = new Board(a);
         Board test2 = new Board(b);
