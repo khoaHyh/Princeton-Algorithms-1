@@ -11,18 +11,14 @@ public class Board {
     private final int nSquared;
     // Stores position of the blank square
     private int blankIndex;
+    // hamming instance variable
+    private int hamming = 0;
+    // manhattan instance variable
+    private int manhattan = 0;
 
     // check if the tile is in the correct place
     private boolean inWrongPlace(int index) {
         return this.copyArr[index] != index + 1;
-    }
-
-    // utility function to calculate horizontal or
-    //  vertical distance to goal position
-    private int addToSum(int current, int goal) {
-        if (current > goal) return current - goal;
-        else if (current < goal) return goal - current;
-        else return 0;
     }
 
     // returns a new array with swapped elements
@@ -35,13 +31,18 @@ public class Board {
         return copy;
     }
 
+    // convert a 1D char array to a 2D int array
     private int[][] charToIntArr(char[] arr) {
         int[][] newArr = new int[n][n];
         for (int row = 0; row < n; row++)
             for (int col = 0; col < n; col++)
-                newArr[row][col] = arr[row * n + col];
+                newArr[row][col] = arr[xyTo1D(row, col)];
 
         return newArr;
+    }
+
+    private int xyTo1D(int x, int y) {
+        return x * n + y;
     }
 
     // get the row from a 1D array index
@@ -62,10 +63,19 @@ public class Board {
         this.copyArr = new char[n*n];
         for (int row = 0; row < n; row++)
             for (int col = 0; col < n; col++) {
+                int tile = tiles[row][col];
+                this.copyArr[xyTo1D(row, col)] = (char) tile;
+
                 if (tiles[row][col] == 0) {
-                    blankIndex = row * n * col;
+                    blankIndex = xyTo1D(row, col);
+                // calculate the hamming and manhattan
+                } else if (inWrongPlace(xyTo1D(row, col))) {
+                    hamming++;
+                    int goalRow = getRow(tile - 1);
+                    int goalCol = getCol(tile - 1);
+                    // add the combined vertical and horizontal distances to the sum
+                    manhattan += Math.abs(col - goalCol) + Math.abs(row - goalRow);
                 }
-                this.copyArr[row * n + col] = (char) tiles[row][col];
             }
     }
 
@@ -73,10 +83,9 @@ public class Board {
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(n).append("\n");
-        int length = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                s.append(String.format("%2d ", (int) this.copyArr[length++]));
+                s.append(String.format("%2d ", (int) this.copyArr[xyTo1D(i, j)]));
             }
             s.append("\n");
         }
@@ -90,38 +99,17 @@ public class Board {
 
     // number of tiles out of place
     public int hamming() {
-        int count = 0;
-        for (int i = 0; i < n; i++)
-            if (inWrongPlace(i) && this.copyArr[i] != 0) count ++;
-
-        return count;
+        return hamming;
     }
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
-        int sum = 0;
-        for (int row = 0; row < n; row++) {
-            for (int col = 0; col < n; col++) {
-                int tile = (int) this.copyArr[row * n + col];
-                if (inWrongPlace(tile) && tile != 0) {
-                    int goalRow;
-                    if (tile % n != 0) goalRow = Math.floorDiv(tile, n);
-                    else goalRow = Math.floorDiv(tile, n) - 1;
-                    int goalCol = tile - (goalRow * n) - 1;
-
-                    // add the combined vertical and horizontal distances to the sum
-                    sum += addToSum(col, goalCol) + addToSum(row, goalRow);
-                }
-            }
-        }
-        return sum;
+        return manhattan;
     }
 
     // is this board the goal board?
     public boolean isGoal() {
-        // To save time, check if the last tile on the board isn't equal to 0
-        if (this.copyArr[nSquared - 1] != 0) return false;
-        return this.hamming() == 0;
+        return hamming == 0;
     }
 
     // does this board equal y?
@@ -130,7 +118,12 @@ public class Board {
         if (y == null) return false;
         if (y.getClass() != this.getClass()) return false;
         Board that = (Board) y;
-        return Arrays.equals(this.copyArr, that.copyArr);
+        if (this.dimension() != that.dimension()) return false;
+        for (int i = 0; i < nSquared; i++)
+            if (this.copyArr[i] != that.copyArr[i])
+                    return false;
+
+        return true;
     }
 
     // all neighboring boards
@@ -168,23 +161,23 @@ public class Board {
                 else a[i][j] = prevRowTile + (i * 3);
             }
 
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++) {
-                int prevRowTile = j + 1;
-
-                if (i == 2 && j == 2) b[i][j] = 0;
-                else b[i][j] = prevRowTile + (i * 3);
-            }
-
-//        int count = 8;
-//        for (int i = 0; i < n; i++)
-//            for (int j = 0; j < n; j++) {
-//                if (i == n - 1 && j == n - 1) b[i][j] = 0;
-//                else {
-//                    b[i][j] = count;
-//                    count--;
-//                }
+//        for (int i = 0; i < 3; i++)
+//            for (int j = 0; j < 3; j++) {
+//                int prevRowTile = j + 1;
+//
+//                if (i == 2 && j == 2) b[i][j] = 0;
+//                else b[i][j] = prevRowTile + (i * 3);
 //            }
+
+        int count = 8;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++) {
+                if (i == n - 1 && j == n - 1) b[i][j] = 0;
+                else {
+                    b[i][j] = count;
+                    count--;
+                }
+            }
 
         Board test = new Board(a);
         Board test2 = new Board(b);

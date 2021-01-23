@@ -4,14 +4,18 @@ import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
+    private Search prevSearchNode;
+
     // this private class allows us to store multiple instances of info as a "key"
     private static class Search implements Comparable<Search> {
         private Search previous;
         private final Board board;
         private int moves = 0;
+        private int manhattan;
 
         public Search(Board board) {
             this.board = board;
+            this.manhattan = this.board.manhattan();
         }
 
         public Search(Board board, Search previous) {
@@ -21,11 +25,11 @@ public class Solver {
         }
 
         public int compareTo(Search that) {
-            return Integer.compare(this.board.manhattan() + this.moves, that.board.manhattan() + that.moves);
+            int thisPriority = this.manhattan + this.moves;
+            int thatPriority = that.manhattan + that.moves;
+            return Integer.compare(thisPriority, thatPriority);
         }
     }
-
-    private Search prevSearchNode;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
@@ -48,11 +52,10 @@ public class Solver {
     // A* search using a priority queue
     private Search aStarSearch(MinPQ<Search> pq) {
         if (pq.isEmpty()) return null;
-
         Search searchNode = pq.delMin();
         if (searchNode.board.isGoal()) return searchNode;
         for (Board x : searchNode.board.neighbors())
-            if (searchNode.previous == null || !x.equals(searchNode.board))
+            if (searchNode.previous == null || !x.equals(searchNode.previous.board))
                 pq.insert(new Search(x, searchNode));
 
         return null;
@@ -73,7 +76,7 @@ public class Solver {
         if (!isSolvable()) return null;
 
         Stack<Board> sequence = new Stack<>();
-        while (prevSearchNode.previous != null) {
+        while (prevSearchNode != null) {
             sequence.push(prevSearchNode.board);
             prevSearchNode = prevSearchNode.previous;
         }
