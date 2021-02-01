@@ -189,18 +189,4 @@ public class KdTree {
                     == Point2D.Y_ORDER.compare(n.p, prev.p);
         }
     }
-
-    public static void visitNode(Node node) {
-        if(node.lb != null) {
-            System.out.println(node);
-            visitNode(node.lb);
-        }
-        if(node.rt != null) {
-            System.out.println(node);
-            visitNode(node.rt);
-        }
-        if (node.lb == null && node.rt == null) {
-            System.out.println(node);
-        }
-    }
 }
