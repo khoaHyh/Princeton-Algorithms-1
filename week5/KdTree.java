@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class KdTree {
+    private static final byte VERTICAL = Byte.parseByte("0");
+    private static final byte HORIZONTAL = Byte.parseByte("1");
     private static final double MIN = 0.0;
     private static final double MAX = 1.0;
 
@@ -18,7 +20,7 @@ public class KdTree {
         private RectHV rect;    // the axis-aligned rectangle corresponding to this node
         private Node lb;        // the left/bottom subtree
         private Node rt;        // the right/top subtree
-        private boolean orientation = true;     // the orientation of the node
+        private byte orientation = VERTICAL;     // the orientation of the node
     }
 
     // utility function to check for null arguments
@@ -60,61 +62,27 @@ public class KdTree {
         }
         int cmp = p.compareTo(currRoot.p);
         if (cmp < 0) {
-            if (currRoot.orientation) xmax = currRoot.p.x();
-            else ymax = currRoot.p.y();
+            if (currRoot.orientation % 2 == 0) {
+                currRoot.lb.orientation = HORIZONTAL;
+                xmax = currRoot.p.x();
+            } else {
+                currRoot.lb.orientation = VERTICAL;
+                ymax = currRoot.p.y();
+            }
+
             currRoot.lb = insert(currRoot.lb, p, xmin, ymin, xmax, ymax);
         }
         if (cmp > 0) {
-            if (currRoot.orientation) xmin = currRoot.p.x();
-            else ymin = currRoot.p.y();
+            if (currRoot.orientation % 2 == 0) {
+                currRoot.lb.orientation = HORIZONTAL;
+                xmin = currRoot.p.x();
+            } else {
+                currRoot.lb.orientation = VERTICAL;
+                ymin = currRoot.p.y();
+            }
             currRoot.rt = insert(currRoot.rt, p, xmin, ymin, xmax, ymax);
         }
         return currRoot;
-
-
-//        if (currRoot == null) {
-//            currRoot = new Node();
-//            currRoot.p = p;
-//            currRoot.rect = new RectHV(MIN, MIN, MAX, MAX);
-//        }
-//
-//        int cmp = p.compareTo(currRoot.p);
-//        if (cmp < 0) {
-//            if (currRoot.lb != null) {
-//                currRoot.lb.orientation = !currRoot.orientation;
-//                currRoot.lb = insert(currRoot.lb, p);
-//            } else {
-//                Node newNode = new Node();
-//                if (currRoot.orientation)
-//                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.rect.ymin(),
-//                            currRoot.rect.xmax(), currRoot.p.y());
-//                else
-//                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.rect.ymin(),
-//                            currRoot.p.x(), currRoot.rect.ymax());
-//
-//                newNode.p = p;
-//                currRoot.lb = newNode;
-//                size++;
-//            }
-//        } else if (cmp > 0) {
-//            if (currRoot.rt != null) {
-//                currRoot.rt.orientation = !currRoot.orientation;
-//                currRoot.rt = insert(currRoot.rt, p);
-//            } else {
-//                Node newNode = new Node();
-//                if (currRoot.orientation)
-//                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.p.y(),
-//                            currRoot.rect.xmax(), currRoot.p.y());
-//                else
-//                    newNode.rect = new RectHV(currRoot.p.x(), currRoot.rect.ymin(),
-//                            currRoot.p.x(), currRoot.rect.ymax());
-//
-//                newNode.p = p;
-//                currRoot.rt = newNode;
-//                size++;
-//            }
-//        }
-//        return currRoot;
     }
 
     // does the set contain point p?
@@ -184,7 +152,7 @@ public class KdTree {
     }
 
     private boolean isSameSide(Point2D p, Node n, Node prev) {
-        if (prev.orientation) {
+        if (prev.orientation % 2 == 0) {
             return Point2D.X_ORDER.compare(p, prev.p)
                     == Point2D.X_ORDER.compare(n.p, prev.p);
         } else {
