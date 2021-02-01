@@ -1,7 +1,5 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.StdDraw;
-
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -20,6 +18,7 @@ public class KdTree {
         private RectHV rect;    // the axis-aligned rectangle corresponding to this node
         private Node lb;        // the left/bottom subtree
         private Node rt;        // the right/top subtree
+        private boolean orientation = true;     // the orientation of the node
     }
 
     // utility function to check for null arguments
@@ -46,12 +45,12 @@ public class KdTree {
         checkNullArg(p);
         if (!contains(p)) {
             // true = x-coordinate (vertical), false = y-coordinate (horizontal)
-            root = insert(root,p,0);
+            root = insert(root,p);
         }
     }
 
     // helper function to insert correctly into the kd tree
-    private Node insert(Node currRoot, Point2D p, int orientation) {
+    private Node insert(Node currRoot, Point2D p) {
         if (currRoot == null) {
             currRoot = new Node();
             currRoot.p = p;
@@ -61,11 +60,11 @@ public class KdTree {
         int cmp = p.compareTo(currRoot.p);
         if (cmp < 0) {
             if (currRoot.lb != null) {
-                orientation++;
-                currRoot.lb = insert(currRoot.lb, p, orientation);
+                currRoot.lb.orientation = !currRoot.orientation;
+                currRoot.lb = insert(currRoot.lb, p);
             } else {
                 Node newNode = new Node();
-                if (orientation % 2 == 0)
+                if (currRoot.orientation)
                     newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.rect.ymin(),
                             currRoot.rect.xmax(), currRoot.p.y());
                 else
@@ -78,11 +77,11 @@ public class KdTree {
             }
         } else if (cmp > 0) {
             if (currRoot.rt != null) {
-                orientation++;
-                currRoot.rt = insert(currRoot.rt, p, orientation);
+                currRoot.rt.orientation = !currRoot.orientation;
+                currRoot.rt = insert(currRoot.rt, p);
             } else {
                 Node newNode = new Node();
-                if (orientation % 2 == 0)
+                if (currRoot.orientation)
                     newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.p.y(),
                             currRoot.rect.xmax(), currRoot.p.y());
                 else
@@ -141,25 +140,35 @@ public class KdTree {
     public Point2D nearest(Point2D p) {
         checkNullArg(p);
         if (isEmpty()) return null;
-        Node node = root;
-        Point2D champion = null;
-        double champDistance = Math.sqrt(2);
+        return nearest(root, p, root.p);
+    }
 
-        if (node.lb != null) {
-            double distance = node.p.distanceTo(p);
-            if (distance < champDistance) {
-                champion = node.p;
-                champDistance = distance;
-            }
-        }
-        if (node.rt != null) {
-            double distance = node.p.distanceTo(p);
-            if (distance < champDistance) {
-                champion = node.p;
-                champDistance = distance;
-            }
+    private Point2D nearest(Node node, Point2D p, Point2D champion) {
+        if (node == null) return champion;
+        if (node.rect.distanceTo(p) >= p.distanceTo(champion))
+            return champion;
+        if ((node.p).distanceTo(p) < p.distanceTo(champion))
+            champion = node.p;
+
+        Point2D secondClosest;
+        if (node.lb != null && isSameSide(p, node.lb, node)) {
+            secondClosest = nearest(node.lb, p, champion);
+            champion = nearest(node.rt, p, secondClosest);
+        } else {
+            secondClosest = nearest(node.rt, p, champion);
+            champion = nearest(node.lb, p, secondClosest);
         }
 
         return champion;
+    }
+
+    private boolean isSameSide(Point2D p, Node n, Node prev) {
+        if (prev.orientation) {
+            return Point2D.X_ORDER.compare(p, prev.p)
+                    == Point2D.X_ORDER.compare(n.p, prev.p);
+        } else {
+            return Point2D.Y_ORDER.compare(p, prev.p)
+                    == Point2D.Y_ORDER.compare(n.p, prev.p);
+        }
     }
 }
