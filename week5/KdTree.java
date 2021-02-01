@@ -71,21 +71,25 @@ public class KdTree {
 
         int cmp = p.compareTo(currRoot.p);
         if (cmp < 0) {
+            double copyY = ymax;
+            double copyX = xmax;
             if (currRoot.orientation % 2 == 0) {
-                xmax = currRoot.p.x();
+                copyY = currRoot.p.x();
             } else {
-                ymax = currRoot.p.y();
+                copyX = currRoot.p.y();
             }
 
-            currRoot.lb = insert(currRoot.lb, p, xmin, ymin, xmax, ymax, currRoot.orientation);
+            currRoot.lb = insert(currRoot.lb, p, xmin, ymin, copyX, copyY, currRoot.orientation);
         }
         if (cmp > 0) {
+            double copyY = ymax;
+            double copyX = xmax;
             if (currRoot.orientation % 2 == 0) {
-                xmin = currRoot.p.x();
+                copyY = currRoot.p.x();
             } else {
-                ymin = currRoot.p.y();
+                copyX = currRoot.p.y();
             }
-            currRoot.rt = insert(currRoot.rt, p, xmin, ymin, xmax, ymax, currRoot.orientation);
+            currRoot.rt = insert(currRoot.rt, p, xmin, ymin, copyX, copyY, currRoot.orientation);
         }
         return currRoot;
     }
