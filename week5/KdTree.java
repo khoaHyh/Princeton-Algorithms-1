@@ -1,7 +1,10 @@
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdDraw;
+
 import java.util.ArrayList;
-import java.util.Stack;
 
 public class KdTree {
     private static final byte VERTICAL = Byte.parseByte("0");
@@ -52,38 +55,37 @@ public class KdTree {
     public void insert(Point2D p) {
         checkNullArg(p);
         if (!contains(p)) {
-            // true = x-coordinate (vertical), false = y-coordinate (horizontal)
-            root = insert(root, p, MIN, MIN, MAX, MAX);
+            root = insert(root, p, MIN, MIN, MAX, MAX, HORIZONTAL);
         }
     }
 
     // helper function to insert correctly into the kd tree
-    private Node insert(Node currRoot, Point2D p, double xmin, double ymin, double xmax, double ymax) {
+    private Node insert(Node currRoot, Point2D p, double xmin, double ymin, double xmax, double ymax, byte prevO) {
         if (currRoot == null) {
             size++;
-            return new Node(p, new RectHV(MIN, MIN, MAX, MAX), VERTICAL);
+            byte newO;
+            if (prevO % 2 == 0) newO = HORIZONTAL;
+            else newO = VERTICAL;
+            return new Node(p, new RectHV(xmin, ymin, xmax, ymax), newO);
         }
+
         int cmp = p.compareTo(currRoot.p);
         if (cmp < 0) {
             if (currRoot.orientation % 2 == 0) {
-                currRoot.lb.orientation = HORIZONTAL;
                 xmax = currRoot.p.x();
             } else {
-                currRoot.lb.orientation = VERTICAL;
                 ymax = currRoot.p.y();
             }
 
-            currRoot.lb = insert(currRoot.lb, p, xmin, ymin, xmax, ymax);
+            currRoot.lb = insert(currRoot.lb, p, xmin, ymin, xmax, ymax, currRoot.orientation);
         }
         if (cmp > 0) {
             if (currRoot.orientation % 2 == 0) {
-                currRoot.lb.orientation = HORIZONTAL;
                 xmin = currRoot.p.x();
             } else {
-                currRoot.lb.orientation = VERTICAL;
                 ymin = currRoot.p.y();
             }
-            currRoot.rt = insert(currRoot.rt, p, xmin, ymin, xmax, ymax);
+            currRoot.rt = insert(currRoot.rt, p, xmin, ymin, xmax, ymax, currRoot.orientation);
         }
         return currRoot;
     }
@@ -107,6 +109,30 @@ public class KdTree {
 
     // draw all points to standard draw
     public void draw() {
+        StdDraw.setScale();
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius();
+        RectHV canvas = new RectHV(0, 0, 1, 1);
+        canvas.draw();
+        draw(root);
+    }
+
+    private void draw(Node node) {
+        if (node == null) return;
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(0.01);
+        node.p.draw();
+        if (node.orientation % 2 == 0) {
+            StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.setPenRadius();
+            StdDraw.line(node.p.x(), node.rect.ymin(), node.p.x(), node.rect.ymax());
+        } else {
+            StdDraw.setPenColor(StdDraw.BLUE);
+            StdDraw.setPenRadius();
+            StdDraw.line(node.rect.xmin(), node.p.y(), node.rect.xmax(), node.p.y());
+        }
+        draw(node.lb);
+        draw(node.rt);
     }
 
     // all points that are inside the rectangle (or on the boundary)
@@ -161,6 +187,20 @@ public class KdTree {
         } else {
             return Point2D.Y_ORDER.compare(p, prev.p)
                     == Point2D.Y_ORDER.compare(n.p, prev.p);
+        }
+    }
+
+    public static void visitNode(Node node) {
+        if(node.lb != null) {
+            System.out.println(node);
+            visitNode(node.lb);
+        }
+        if(node.rt != null) {
+            System.out.println(node);
+            visitNode(node.rt);
+        }
+        if (node.lb == null && node.rt == null) {
+            System.out.println(node);
         }
     }
 }
