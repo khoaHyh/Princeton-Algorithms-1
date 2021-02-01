@@ -20,7 +20,13 @@ public class KdTree {
         private RectHV rect;    // the axis-aligned rectangle corresponding to this node
         private Node lb;        // the left/bottom subtree
         private Node rt;        // the right/top subtree
-        private byte orientation = VERTICAL;     // the orientation of the node
+        private byte orientation;     // the orientation of the node
+
+        public Node(Point2D p, RectHV rect, byte orientation) {
+            this.p = p;
+            this.rect = rect;
+            this.orientation = orientation;
+        }
     }
 
     // utility function to check for null arguments
@@ -55,10 +61,7 @@ public class KdTree {
     private Node insert(Node currRoot, Point2D p, double xmin, double ymin, double xmax, double ymax) {
         if (currRoot == null) {
             size++;
-            currRoot = new Node();
-            currRoot.p = p;
-            currRoot.rect = new RectHV(MIN, MIN, MAX, MAX);
-            return currRoot;
+            return new Node(p, new RectHV(MIN, MIN, MAX, MAX), VERTICAL);
         }
         int cmp = p.compareTo(currRoot.p);
         if (cmp < 0) {
@@ -88,18 +91,18 @@ public class KdTree {
     // does the set contain point p?
     public boolean contains(Point2D p) {
         checkNullArg(p);
-        return contains(root, p) != null;
+        return contains(root, p);
     }
 
     // helper function to check if the set contains point p
-    private Point2D contains(Node x, Point2D p) {
+    private boolean contains(Node x, Point2D p) {
+        if (x == null) return false;
         int cmp = p.compareTo(x.p);
-        if (cmp < 0) {
+        if (cmp < 0)
             return contains(x.lb, p);
-        } else if (cmp > 0) {
+        if (cmp > 0)
             return contains(x.rt, p);
-        } else
-            return x.p;
+        return true;
     }
 
     // draw all points to standard draw
