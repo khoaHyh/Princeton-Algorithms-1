@@ -4,7 +4,7 @@ import edu.princeton.cs.algs4.Stack;
 import java.util.TreeSet;
 
 public class PointSET {
-    TreeSet<Point2D> set;
+    private final TreeSet<Point2D> set;
 
     // utility function to check for null arguments
     private void checkNullArg(Object arg) {
