@@ -45,55 +45,76 @@ public class KdTree {
         checkNullArg(p);
         if (!contains(p)) {
             // true = x-coordinate (vertical), false = y-coordinate (horizontal)
-            root = insert(root,p);
+            root = insert(root, p, MIN, MIN, MAX, MAX);
         }
     }
 
     // helper function to insert correctly into the kd tree
-    private Node insert(Node currRoot, Point2D p) {
+    private Node insert(Node currRoot, Point2D p, double xmin, double ymin, double xmax, double ymax) {
         if (currRoot == null) {
+            size++;
             currRoot = new Node();
             currRoot.p = p;
             currRoot.rect = new RectHV(MIN, MIN, MAX, MAX);
+            return currRoot;
         }
-
         int cmp = p.compareTo(currRoot.p);
         if (cmp < 0) {
-            if (currRoot.lb != null) {
-                currRoot.lb.orientation = !currRoot.orientation;
-                currRoot.lb = insert(currRoot.lb, p);
-            } else {
-                Node newNode = new Node();
-                if (currRoot.orientation)
-                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.rect.ymin(),
-                            currRoot.rect.xmax(), currRoot.p.y());
-                else
-                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.rect.ymin(),
-                            currRoot.p.x(), currRoot.rect.ymax());
-
-                newNode.p = p;
-                currRoot.lb = newNode;
-                size++;
-            }
-        } else if (cmp > 0) {
-            if (currRoot.rt != null) {
-                currRoot.rt.orientation = !currRoot.orientation;
-                currRoot.rt = insert(currRoot.rt, p);
-            } else {
-                Node newNode = new Node();
-                if (currRoot.orientation)
-                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.p.y(),
-                            currRoot.rect.xmax(), currRoot.p.y());
-                else
-                    newNode.rect = new RectHV(currRoot.p.x(), currRoot.rect.ymin(),
-                            currRoot.p.x(), currRoot.rect.ymax());
-
-                newNode.p = p;
-                currRoot.rt = newNode;
-                size++;
-            }
+            if (currRoot.orientation) xmax = currRoot.p.x();
+            else ymax = currRoot.p.y();
+            currRoot.lb = insert(currRoot.lb, p, xmin, ymin, xmax, ymax);
+        }
+        if (cmp > 0) {
+            if (currRoot.orientation) xmin = currRoot.p.x();
+            else ymin = currRoot.p.y();
+            currRoot.rt = insert(currRoot.rt, p, xmin, ymin, xmax, ymax);
         }
         return currRoot;
+
+
+//        if (currRoot == null) {
+//            currRoot = new Node();
+//            currRoot.p = p;
+//            currRoot.rect = new RectHV(MIN, MIN, MAX, MAX);
+//        }
+//
+//        int cmp = p.compareTo(currRoot.p);
+//        if (cmp < 0) {
+//            if (currRoot.lb != null) {
+//                currRoot.lb.orientation = !currRoot.orientation;
+//                currRoot.lb = insert(currRoot.lb, p);
+//            } else {
+//                Node newNode = new Node();
+//                if (currRoot.orientation)
+//                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.rect.ymin(),
+//                            currRoot.rect.xmax(), currRoot.p.y());
+//                else
+//                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.rect.ymin(),
+//                            currRoot.p.x(), currRoot.rect.ymax());
+//
+//                newNode.p = p;
+//                currRoot.lb = newNode;
+//                size++;
+//            }
+//        } else if (cmp > 0) {
+//            if (currRoot.rt != null) {
+//                currRoot.rt.orientation = !currRoot.orientation;
+//                currRoot.rt = insert(currRoot.rt, p);
+//            } else {
+//                Node newNode = new Node();
+//                if (currRoot.orientation)
+//                    newNode.rect = new RectHV(currRoot.rect.xmin(), currRoot.p.y(),
+//                            currRoot.rect.xmax(), currRoot.p.y());
+//                else
+//                    newNode.rect = new RectHV(currRoot.p.x(), currRoot.rect.ymin(),
+//                            currRoot.p.x(), currRoot.rect.ymax());
+//
+//                newNode.p = p;
+//                currRoot.rt = newNode;
+//                size++;
+//            }
+//        }
+//        return currRoot;
     }
 
     // does the set contain point p?
@@ -145,9 +166,9 @@ public class KdTree {
 
     private Point2D nearest(Node node, Point2D p, Point2D champion) {
         if (node == null) return champion;
-        if (node.rect.distanceTo(p) >= p.distanceTo(champion))
+        if (node.rect.distanceSquaredTo(p) >= p.distanceSquaredTo(champion))
             return champion;
-        if ((node.p).distanceTo(p) < p.distanceTo(champion))
+        if ((node.p).distanceSquaredTo(p) < p.distanceSquaredTo(champion))
             champion = node.p;
 
         Point2D secondClosest;

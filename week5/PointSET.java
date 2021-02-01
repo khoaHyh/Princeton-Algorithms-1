@@ -61,10 +61,10 @@ public class PointSET {
         checkNullArg(p);
         if (isEmpty()) return null;
         Point2D champion = null;
-        double champDistance = Math.sqrt(2);
+        double champDistance = 1.4;
 
         for (Point2D point : set) {
-            double distance = point.distanceTo(p);
+            double distance = point.distanceSquaredTo(p);
             if (distance < champDistance) {
                 champion = point;
                 champDistance = distance;
